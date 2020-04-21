@@ -1,0 +1,60 @@
+global nets:set[addr];
+global nets2:set[addr];
+global a:double=0;
+
+global b:double=0;
+global c:double=0;
+global flagnum:bool=F;
+global flagper:bool=F;
+global flagent:bool=F;
+event zeek_init()
+	{
+	}
+event new_connection(c:connection)
+	{
+	
+	
+	}
+event http_request(c: connection, method: string, original_URI: string, unescaped_URI: string, version: string)
+	{
+
+	}
+event http_reply(c: connection, version: string, code: count, reason: string)
+	{
+		if (code==404)
+		{
+		a+=1;
+		add nets[c$id$resp_h];
+		add nets2[c$id$orig_h];
+		}
+		else 
+		{
+		b+=1;
+	
+		}
+		for (addr in nets)
+		{
+
+		c+=1;
+		}
+		if (a>1)
+		{
+		flagnum=T;
+		}
+		if(a/(a+b)>0.2)
+		{
+		flagper=T;
+		}
+		if(c/a >0.5)
+		{
+		flagent=T;
+		}
+		
+
+	}
+event zeek_done()
+	{
+	if(flagnum&&flagper&&flagent)
+		{
+		for(p in nets) 
+		print nets2,"is the orig_h",nets," a,"is the count of 404 response",c,"is the unique count of url response 404";
